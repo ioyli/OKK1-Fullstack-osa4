@@ -27,8 +27,18 @@ const favoriteBlog = (blogs) => {
     return favorite
 }
 
+const mostBlogs = (blogs) => {
+    // return author with most blogs, and their blog count
+}
+
+const mostLikes = (blogs) => {
+    // return author with most likes, and their total like count
+}
+
 module.exports = {
     dummy,
     totalLikes,
-    favoriteBlog
+    favoriteBlog,
+    mostBlogs,
+    mostLikes
 }
