@@ -57,7 +57,7 @@ describe('adding new blogs', () => {
             title: 'im trying my best',
             author: 'dev',
             url: '/api/blogs',
-            likes: 0
+            likes: 10
         }
 
         await api
@@ -75,16 +75,57 @@ describe('adding new blogs', () => {
 
     test('fail with code 400 if data is invalid', async () => {
         const newBlog = {
-            url: 'peekaboo'
+            author: 'yippee',
+        }
+
+        await api
+            .post('/api/blogs')
+            .send(newBlog)
+            .expect(400)
+
+        const blogsAfterTest = await helper.blogsinDb()
+        expect(blogsAfterTest).toHaveLength(helper.initialBlogs.length)
+    })
+
+    test('set likes to 0 if no specific value is given', async () => {
+        const newBlog = {
+            title: 'as fluttershy would say',
+            author: 'yay',
+            url: '/'
         }
 
         await api
         .post('/api/blogs')
         .send(newBlog)
-        .expect(400)
+        .expect(201)
+        .expect('Content-Type', /application\/json/)
 
-        const blogsAfterTest = await helper.blogsinDb()
-        expect(blogsAfterTest).toHaveLength(helper.initialBlogs.length)
+        const blogsAfterAddition = await helper.blogsinDb()
+        expect(blogsAfterAddition).toHaveLength(helper.initialBlogs.length + 1)
+        
+        const likes = blogsAfterAddition.map(blog => blog.likes)
+        expect(likes[blogsAfterAddition.length - 1]).toEqual(0)
+    })
+})
+
+describe('editing existing blogs', () => {
+    test('increase blog likes by 1', async () => {
+        const existingBlogs = await helper.blogsinDb()
+        const editedBlog = {
+            title: existingBlogs[0].title,
+            author: existingBlogs[0].author,
+            url: existingBlogs[0].url,
+            likes: existingBlogs[0].likes + 1
+        }
+
+        await api
+        .put(`/api/blogs/${existingBlogs[0].id}`)
+        .send(editedBlog)
+        .expect(200)
+        .expect('Content-Type', /application\/json/)
+
+        const blogsAfterAddition = await helper.blogsinDb()
+        expect(blogsAfterAddition[0].likes).toEqual(editedBlog.likes)
     })
 })
 
