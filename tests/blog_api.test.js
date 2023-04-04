@@ -141,10 +141,40 @@ describe('initially one user in db', () => {
         await user.save()
     })
 
-    test('succeed with unique username', async () => {
+    test('creation succeeds with unique username', async () => {
+        const usersInBeginning = await helper.usersinDb()
 
-        // bababooey
+        const newUser = {
+            username: 'doggy',
+            name: 'Hauva',
+            password: 'slsana'
+        }
 
+        await api
+        .post('/api/users')
+        .send(newUser)
+        .expect(201)
+        .expect('Content-Type', /application\/json/)
+
+        const usersAtEnd = await helper.usersinDb()
+        expect(usersAtEnd).toHaveLength(usersInBeginning.length + 1)
+
+        const usernames = usersAtEnd.map(u => u.username)
+        expect(usernames).toContain(newUser.username)
+    })
+
+    test('creation fails if username already exists', async () => {
+        const usersInBeginning = await helper.usersinDb()
+
+        const newUser = {
+            username: 'root',
+            name: 'Super User',
+            password: 'slsana'
+        }
+
+        const result = await api
+        .post('/api/users')
+        // send etc add later
     })
 })
 
