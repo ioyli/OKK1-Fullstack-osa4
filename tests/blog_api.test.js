@@ -1,7 +1,9 @@
 const mongoose = require('mongoose')
+const bcrypt = require('bcrypt')
 const supertest = require('supertest')
 const helper = require('./testHelper')
 const app = require('../app')
+const User = require('../models/user')
 const Blog = require('../models/blog')
 
 const api = supertest(app)
@@ -126,6 +128,23 @@ describe('editing existing blogs', () => {
 
         const blogsAfterAddition = await helper.blogsinDb()
         expect(blogsAfterAddition[0].likes).toEqual(editedBlog.likes)
+    })
+})
+
+describe('initially one user in db', () => {
+    beforeEach(async () => {
+        await User.deleteMany({})
+
+        const passwordHash = await bcrypt.hash('soupysecret', 10)
+        const user = new User({ username: 'root', passwordHash })
+
+        await user.save()
+    })
+
+    test('succeed with unique username', async () => {
+
+        // bababooey
+
     })
 })
 
